@@ -59,8 +59,8 @@ def create_app() -> FastAPI:
             "orchestration with full audit trails."
         ),
         lifespan=lifespan,
-        docs_url="/docs" if settings.debug else None,  # Disable Swagger in prod
-        redoc_url="/redoc" if settings.debug else None,
+        docs_url="/docs",
+        redoc_url="/redoc",
     )
 
     # CORS — restrict in production
@@ -78,16 +78,16 @@ def create_app() -> FastAPI:
     app.include_router(agent_router) # Agentic AI workflows
     app.include_router(epj_router)   # EPJ bridge
 
-    # Health check (outside versioned API — always available)
+    # Lightweight liveness check — always responds, never loads models
+    @app.get("/healthz")
+    async def liveness():
+        """Liveness probe — confirms the API process is running."""
+        return {"status": "alive"}
+
+    # Full health check — tests AI service connectivity
     @app.get("/health", response_model=HealthResponse, tags=["System"])
     async def health_check():
-        """
-        Health check endpoint.
-
-        Returns service status for monitoring.
-        Any orchestrator can poll this to verify
-        the service is alive and its dependencies are healthy.
-        """
+        """Full health check including AI services. May be slow on first call."""
         services = {}
         try:
             llm = get_llm_provider()
