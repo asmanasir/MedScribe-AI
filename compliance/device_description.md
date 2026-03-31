@@ -7,7 +7,7 @@ MedScribe AI — Clinical Documentation Assistant
 - **MDR Class:** Class I (non-measuring, non-sterile)
 - **Rule:** Rule 11 (software intended to provide information used for diagnostic or therapeutic decisions — Class I when providing decision *support* that is reviewed by a qualified professional)
 - **GMDN Code:** Clinical documentation software
-- **Comparable Device:** Vidd Medical (Class I medical device)
+- **Comparable Device:** Existing clinical AI systems (Class I medical device)
 
 ## 3. Description
 MedScribe AI is a software-as-a-medical-device (SaMD) that assists healthcare

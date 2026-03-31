@@ -3,7 +3,7 @@ from __future__ import annotations
 """
 Agent API endpoints — agentic workflow management.
 
-These endpoints let the frontend (or Aidn) interact with
+These endpoints let the frontend (or the EPJ system) interact with
 the agent orchestrator:
 
 1. POST /agent/plan — Generate a plan with previews

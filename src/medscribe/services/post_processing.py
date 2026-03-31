@@ -12,7 +12,7 @@ showing it to the doctor. It fixes:
 4. Replaces informal language with medical terminology
 5. Removes obvious hallucinations
 
-This is what Vidd-style systems do — they never show raw LLM output.
+Production clinical AI systems never show raw LLM output.
 Every output goes through a quality pipeline.
 """
 

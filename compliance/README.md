@@ -3,7 +3,7 @@
 ## Regulatory Classification
 
 MedScribe AI is classified as a **Class I medical device** under EU MDR 2017/745,
-following the same classification as Vidd Medical.
+following standard classification for clinical documentation software.
 
 **Justification:** The software provides clinical documentation assistance (speech-to-text
 and text structuring) but does NOT:

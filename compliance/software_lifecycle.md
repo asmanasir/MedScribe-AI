@@ -10,7 +10,7 @@ require human review before clinical use.
 ```
 ┌──────────────────────┐
 │   External System    │
-│ (EPJ / Aidn / UI)    │
+│ (EPJ / UI)           │
 └─────────┬────────────┘
           │ REST API / WebSocket
           ↓

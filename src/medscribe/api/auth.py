@@ -12,7 +12,7 @@ How JWT works:
 Why JWT for healthcare microservices?
 - Stateless: no session storage, scales horizontally
 - Self-contained: token carries user info (claims)
-- Standard: Aidn or any system can generate compatible tokens
+- Standard: any external system can generate compatible tokens
 - Auditable: every request has a known identity
 
 Security rules:

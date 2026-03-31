@@ -1,20 +1,20 @@
-# Aidn Integration Guide — MedScribe AI
+# EPJ Integration Guide — MedScribe AI
 
 ## Overview
 
 MedScribe AI is an AI microservice that adds speech-to-text and
-clinical note structuring to Aidn's journal system. Aidn stays
+clinical note structuring to an EPJ system. The EPJ stays
 the source of truth for patient data — MedScribe is a processing
-engine that Aidn calls when a doctor needs to create a note.
+engine that the EPJ calls when a doctor needs to create a note.
 
 ## Integration Architecture
 
 ```
 ┌─────────────────────────────────────────────┐
-│  Aidn EPJ System                             │
+│  EPJ System                                  │
 │                                               │
 │  ┌──────────┐  ┌──────────┐  ┌────────────┐ │
-│  │ Aidn     │  │ Aidn     │  │ Aidn       │ │
+│  │ EPJ      │  │ EPJ      │  │ EPJ        │ │
 │  │ Frontend │  │ Backend  │  │ Database   │ │
 │  │ (React)  │──│ (API)    │──│ (Journal)  │ │
 │  └────┬─────┘  └────┬─────┘  └────────────┘ │
@@ -40,14 +40,14 @@ engine that Aidn calls when a doctor needs to create a note.
 
 ### Step 1: Authentication
 
-Aidn's backend gets a JWT token from MedScribe:
+The EPJ backend gets a JWT token from MedScribe:
 
 ```bash
 POST /api/v1/auth/token
 Content-Type: application/json
 
 {
-  "client_id": "aidn-backend",
+  "client_id": "epj-backend",
   "client_secret": "<shared-secret>",
   "role": "system"
 }
@@ -62,7 +62,7 @@ Content-Type: application/json
 
 ### Step 2: Create a Visit
 
-When a doctor starts a consultation in Aidn:
+When a doctor starts a consultation in the EPJ:
 
 ```bash
 POST /api/v1/visits
@@ -70,10 +70,10 @@ Authorization: Bearer <token>
 Content-Type: application/json
 
 {
-  "patient_id": "aidn-patient-12345",
-  "clinician_id": "aidn-doctor-67890",
+  "patient_id": "epj-patient-12345",
+  "clinician_id": "epj-doctor-67890",
   "metadata": {
-    "aidn_encounter_id": "enc-abc-123",
+    "epj_encounter_id": "enc-abc-123",
     "department": "general_practice",
     "template": "general_practice"
   }
@@ -89,7 +89,7 @@ Content-Type: application/json
 
 ### Step 3: Send Audio for Transcription
 
-Doctor finishes recording in Aidn, Aidn sends audio to MedScribe:
+Doctor finishes recording in the EPJ, the EPJ sends audio to MedScribe:
 
 ```bash
 POST /api/v1/visits/{visit_id}/transcribe
@@ -130,12 +130,12 @@ Authorization: Bearer <token>
 }
 ```
 
-### Step 5: Doctor Reviews in Aidn
+### Step 5: Doctor Reviews in the EPJ
 
-Aidn shows the structured note in its journal editor.
-Doctor can edit sections directly in Aidn's UI.
+The EPJ shows the structured note in its journal editor.
+Doctor can edit sections directly in the EPJ's UI.
 
-If edits are made, Aidn sends them back:
+If edits are made, the EPJ sends them back:
 
 ```bash
 PUT /api/v1/visits/{visit_id}/note
@@ -152,7 +152,7 @@ Content-Type: application/json
 
 ### Step 6: Approve
 
-Doctor approves the note in Aidn:
+Doctor approves the note in the EPJ:
 
 ```bash
 POST /api/v1/visits/{visit_id}/approve
@@ -160,25 +160,25 @@ Authorization: Bearer <token>
 Content-Type: application/json
 
 {
-  "approved_by": "aidn-doctor-67890"
+  "approved_by": "epj-doctor-67890"
 }
 ```
 
 ### Step 7: Get FHIR Bundle and Save to Journal
 
-Aidn gets the FHIR-formatted note and saves it to the patient journal:
+The EPJ gets the FHIR-formatted note and saves it to the patient journal:
 
 ```bash
 GET /api/v1/visits/{visit_id}/fhir/bundle
 Authorization: Bearer <token>
 
 # Response: FHIR R4 Bundle with Composition + DocumentReference
-# Aidn saves this to its own journal database
+# The EPJ saves this to its own journal database
 ```
 
 ### Step 8: GDPR Purge
 
-After Aidn confirms the note is saved in the journal:
+After the EPJ confirms the note is saved in the journal:
 
 ```bash
 POST /api/v1/visits/{visit_id}/purge
@@ -193,7 +193,7 @@ Authorization: Bearer <token>
 For live transcription (text appears as doctor speaks):
 
 ```javascript
-// In Aidn's frontend
+// In the EPJ's frontend
 const ws = new WebSocket("wss://medscribe.hospital.no/api/v1/ws/transcribe?language=no");
 
 // Send audio chunks from microphone
@@ -236,6 +236,6 @@ audio: <binary audio data>
 
 | Option | For | How |
 |---|---|---|
-| **Same Azure subscription** | Aidn runs on Azure | Deploy MedScribe to same VNet |
+| **Same Azure subscription** | EPJ runs on Azure | Deploy MedScribe to same VNet |
 | **Norsk Helsenett** | Hospital network | Expose via Norsk Helsenett endpoint |
 | **On-premise** | Hospital datacenter | Docker/K8s on hospital servers |

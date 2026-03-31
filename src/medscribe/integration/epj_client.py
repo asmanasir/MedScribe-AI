@@ -4,7 +4,7 @@ from __future__ import annotations
 EPJ Integration Client — sends approved notes to hospital journal systems.
 
 Supports Norwegian EPJ systems:
-- DIPS Arena (hospitals) → FHIR R4 REST API
+- Hospital EPJ systems (e.g. FHIR R4 REST API)
 - CGM Journal (fastleger) → FHIR R4 REST API
 - Helseplattformen / Epic (Midt-Norge) → FHIR R4 REST API
 - Generic FHIR → any FHIR R4 server
@@ -13,7 +13,7 @@ All Norwegian EPJ systems are converging on FHIR R4.
 The only differences are:
 1. Base URL (where to POST)
 2. Authentication (OAuth2 / certificate-based)
-3. Required extensions (DIPS-specific fields, etc.)
+3. Required extensions (hospital EPJ-specific fields, etc.)
 
 Flow:
   1. Note approved in MedScribe
@@ -62,13 +62,13 @@ class EPJClient(ABC):
 
 class DIPSClient(EPJClient):
     """
-    DIPS Arena integration — used by most Norwegian hospitals.
+    Hospital EPJ integration — used by Norwegian hospitals.
 
-    DIPS exposes a FHIR R4 REST API for document submission.
+    The hospital EPJ exposes a FHIR R4 REST API for document submission.
     Authentication is typically OAuth2 with hospital-issued credentials.
 
-    DIPS FHIR endpoint pattern:
-      https://<hospital>.dips.no/fhir/R4/
+    FHIR endpoint pattern:
+      https://<hospital>.hospital.example.no/fhir/R4/
     """
 
     def __init__(self, base_url: str, client_id: str, client_secret: str) -> None:
@@ -80,7 +80,7 @@ class DIPSClient(EPJClient):
         self._token: str | None = None
 
     async def _authenticate(self) -> str:
-        """Get OAuth2 token from DIPS."""
+        """Get OAuth2 token from the hospital EPJ."""
         resp = await self._http.post(
             f"{self._base_url}/oauth2/token",
             data={
@@ -118,7 +118,7 @@ class DIPSClient(EPJClient):
 
         return EPJTransferResult(
             success=resp.is_success,
-            epj_system="DIPS",
+            epj_system="HospitalEPJ",
             response_code=resp.status_code,
             response_body=resp.text[:500],
             fhir_resource_id=_extract_resource_id(resp.text) if resp.is_success else None,

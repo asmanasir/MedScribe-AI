@@ -42,7 +42,7 @@ class Visit(BaseModel):
     status: VisitStatus = VisitStatus.CREATED
     created_at: datetime = Field(default_factory=_utcnow)
     updated_at: datetime = Field(default_factory=_utcnow)
-    metadata: dict = Field(default_factory=dict)  # Extensible — Aidn can pass extra data
+    metadata: dict = Field(default_factory=dict)  # Extensible — the EPJ system can pass extra data
 
 
 class Transcript(BaseModel):
@@ -82,7 +82,7 @@ class ClinicalNote(BaseModel):
     Structured clinical note — the main output of the system.
 
     This is what gets reviewed by the clinician and potentially
-    sent back to Aidn / the EPJ system.
+    sent back to the EPJ system.
     """
 
     id: UUID = Field(default_factory=uuid4)

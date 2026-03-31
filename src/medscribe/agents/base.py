@@ -29,8 +29,8 @@ Key design decisions:
 - The agent NEVER makes clinical decisions — it drafts, the human decides
 - Risk levels: LOW (auto-execute) / MEDIUM (preview) / HIGH (require approval)
 
-This is exactly what Aidn describes as "agentic workflows with strict safety
-boundaries and transparency."
+This implements agentic workflows with strict safety
+boundaries and transparency.
 """
 
 from abc import ABC, abstractmethod

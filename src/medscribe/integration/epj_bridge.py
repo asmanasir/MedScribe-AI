@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 """
-EPJ Bridge — makes MedScribe a drop-in replacement for Vidd in WebMed/TNW.
+EPJ Bridge — integrates MedScribe with the hospital EPJ system.
 
-This module implements the EXACT message protocol used between Vidd and
-the WebMed EPJ system (TNW). Reverse-engineered from:
+This module implements the EXACT message protocol used between the
+clinical AI assistant and the EPJ system. Based on:
 - SmartWebMessageHandler.cs
 - SmartWebMessageResult.cs
 - AiAssistantOrchestrator.cs
@@ -66,7 +66,7 @@ class EPJSmartWebMessage:
     """
     Builds SmartWebMessage JSON exactly as the EPJ expects it.
 
-    This is the message format that WebMed's SmartWebMessageHandler.cs parses.
+    This is the message format that the EPJ's SmartWebMessageHandler.cs parses.
     Every field must match exactly or the message will be rejected.
     """
 
@@ -110,7 +110,7 @@ class EPJSmartWebMessage:
             "author": [{
                 "reference": f"Practitioner/{user_id}",
                 "identifier": {
-                    "system": "WebMed:Practitioner",
+                    "system": "EPJ:Practitioner",
                     "value": str(user_id),
                 },
             }],

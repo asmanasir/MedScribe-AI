@@ -5,7 +5,7 @@ FHIR R4 Adapter — bridges MedScribe notes to Norwegian EPJ systems.
 
 FHIR (Fast Healthcare Interoperability Resources) is THE standard for
 healthcare data exchange in Norway. All major EPJ systems support it:
-- DIPS Arena → FHIR R4 REST API
+- Hospital EPJ systems → FHIR R4 REST API
 - CGM (fastleger) → FHIR R4
 - Helseplattformen (Epic) → FHIR R4
 - Infodoc → FHIR R4
@@ -41,7 +41,7 @@ class FHIRDocumentBuilder:
     Converts MedScribe domain objects to FHIR R4 resources.
 
     Usage:
-        builder = FHIRDocumentBuilder(fhir_base_url="https://dips.hospital.no/fhir")
+        builder = FHIRDocumentBuilder(fhir_base_url="https://hospital.example.no/fhir")
         doc_ref = builder.build_document_reference(visit, note)
         composition = builder.build_composition(visit, note)
         bundle = builder.build_bundle(visit, note)

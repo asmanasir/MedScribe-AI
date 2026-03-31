@@ -16,7 +16,7 @@ Why a state machine?
 1. Prevents invalid states (e.g., approving a note that doesn't exist)
 2. Makes the system auditable (every transition is logged)
 3. Enables retry logic (if structuring fails, stay in TRANSCRIBED)
-4. Aidn uses similar multi-step workflows — this is compatible
+4. External EPJ systems use similar multi-step workflows — this is compatible
 
 This is NOT a heavyweight workflow engine (like Temporal or Airflow).
 It's a simple, in-process state machine. If you need distributed

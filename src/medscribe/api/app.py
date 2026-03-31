@@ -76,7 +76,7 @@ def create_app() -> FastAPI:
     app.include_router(router)       # Main API (protected by JWT)
     app.include_router(ws_router)    # WebSocket (streaming transcription)
     app.include_router(agent_router) # Agentic AI workflows
-    app.include_router(epj_router)   # EPJ/WebMed bridge (Vidd-compatible)
+    app.include_router(epj_router)   # EPJ bridge
 
     # Health check (outside versioned API — always available)
     @app.get("/health", response_model=HealthResponse, tags=["System"])
@@ -85,7 +85,7 @@ def create_app() -> FastAPI:
         Health check endpoint.
 
         Returns service status for monitoring.
-        Aidn (or any orchestrator) can poll this to verify
+        Any orchestrator can poll this to verify
         the service is alive and its dependencies are healthy.
         """
         services = {}

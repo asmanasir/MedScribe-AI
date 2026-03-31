@@ -12,7 +12,7 @@ that general-purpose LLMs often get wrong. This module provides:
 4. Post-processing corrections for common STT errors in Norwegian medical terms
 
 This is what differentiates a production clinical system from a demo.
-Vidd Medical handles Norwegian — so must we, and better.
+Existing clinical AI systems handle Norwegian — so must we, and better.
 """
 
 # Norwegian clinical system prompt — used in structuring

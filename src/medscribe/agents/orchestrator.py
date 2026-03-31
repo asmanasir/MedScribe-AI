@@ -3,8 +3,8 @@ from __future__ import annotations
 """
 Agent Orchestrator — the brain that chains agents into multi-step workflows.
 
-This is what Aidn calls "controlled, goal-driven automation where the
-system can propose and chain steps."
+This implements controlled, goal-driven automation where the
+system can propose and chain steps.
 
 How it works:
 1. Doctor finishes a consultation

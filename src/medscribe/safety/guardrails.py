@@ -10,8 +10,8 @@ This module checks:
 3. Confidence thresholds (is the AI confident enough?)
 4. Human-in-the-loop enforcement (has a human approved?)
 
-Aidn emphasizes this heavily — their system never auto-finalizes.
-Neither does yours.
+Clinical AI systems must never auto-finalize.
+This system enforces that principle.
 
 Design: Chain of Responsibility pattern
 Each check is independent. Run all of them. Collect all flags.

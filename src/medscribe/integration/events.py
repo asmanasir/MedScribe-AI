@@ -4,7 +4,7 @@ from __future__ import annotations
 Event system — decouples your service from consumers.
 
 When a visit is approved, multiple things might need to happen:
-- Notify Aidn
+- Notify the EPJ system
 - Send to the EPJ system
 - Trigger a webhook
 - Log to analytics

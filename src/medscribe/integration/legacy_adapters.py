@@ -4,7 +4,7 @@ from __future__ import annotations
 Legacy Norwegian healthcare system adapters.
 
 Not all Norwegian systems speak FHIR R4. Older systems use:
-- HL7 v2.x messages (DIPS Classic, older hospital systems)
+- HL7 v2.x messages (hospital EPJ legacy systems)
 - XML/KITH messages (Norwegian standard before FHIR)
 - Flat file / CSV exports (some municipal systems)
 - SOAP/WSDL web services (older integrations)
@@ -14,7 +14,7 @@ MedScribe can integrate with ANY Norwegian healthcare system,
 not just modern FHIR-based ones.
 
 Supported formats:
-1. HL7 v2.x MDM (Medical Document Management) — for DIPS Classic
+1. HL7 v2.x MDM (Medical Document Management) — for hospital EPJ legacy systems
 2. KITH XML — Norwegian standard for clinical documents
 3. Plain text / PDF — universal fallback
 4. EPJ-Løft XML — for municipal healthcare systems
@@ -32,7 +32,7 @@ class HL7v2Adapter:
     """
     HL7 v2.x MDM message adapter.
 
-    Used by: DIPS Classic, older hospital systems.
+    Used by: hospital EPJ legacy systems.
 
     An MDM (Medical Document Management) message carries
     clinical documents between systems. This is the most

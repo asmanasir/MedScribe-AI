@@ -2,8 +2,8 @@
 Abstract base classes for all AI services.
 
 This is the MOST IMPORTANT file architecturally. It defines contracts
-that every implementation must follow. When Aidn or any external system
-integrates with you, they don't care if you use OpenAI or Llama — they
+that every implementation must follow. When any external system
+integrates with you, it doesn't care if you use OpenAI or Llama — it
 care that the interface is stable.
 
 Design pattern: Strategy Pattern
@@ -73,7 +73,7 @@ class LLMProvider(ABC):
     """
     Abstract LLM provider.
 
-    To add a new LLM (e.g., Claude, Gemini, local Llama):
+    To add a new LLM (e.g., Mistral, Gemma, local Llama):
     1. Create a new class that inherits from this
     2. Implement `generate()`
     3. Register it in the service factory

@@ -45,7 +45,7 @@ async def get_token(
     identity provider. For dev, we accept any client_id
     with the correct API secret.
 
-    Aidn would call this endpoint first, then use the returned
+    The EPJ system would call this endpoint first, then use the returned
     token for all subsequent API calls.
     """
     # DEV: simple secret check. PROD: replace with real auth.

@@ -1,5 +1,5 @@
 """
-API routes — the endpoints Aidn and external systems call.
+API routes — the endpoints external systems call.
 
 Design:
 - Routes are THIN. They validate input, call services, return output.
@@ -279,7 +279,7 @@ async def process_visit(
     """
     Full pipeline: audio → transcribe → structure → review.
 
-    This is the main endpoint for Aidn integration.
+    This is the main endpoint for EPJ integration.
     One call does everything. The visit ends in REVIEW state,
     waiting for human approval.
     """
@@ -427,7 +427,7 @@ async def approve_note(
     Approve a clinical note — the human-in-the-loop step.
 
     This is THE most important endpoint. Nothing is finalized
-    without explicit human approval. Aidn requires this.
+    without explicit human approval. The EPJ system requires this.
     """
     visit = await visit_repo.get(visit_id)
     if not visit:
@@ -603,7 +603,7 @@ async def export_hl7(
     visit_repo: VisitRepository = Depends(get_visit_repo),
     note_repo: ClinicalNoteRepository = Depends(get_note_repo),
 ):
-    """Export note as HL7 v2.x MDM message (for DIPS Classic, older systems)."""
+    """Export note as HL7 v2.x MDM message (for hospital EPJ legacy systems)."""
     visit = await visit_repo.get(visit_id)
     if not visit:
         raise HTTPException(status_code=404, detail="Visit not found")

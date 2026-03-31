@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 """
-EPJ Bridge API — endpoints that connect MedScribe to the WebMed EPJ.
+EPJ Bridge API — endpoints that connect MedScribe to the EPJ.
 
 These endpoints let the EPJ system drive MedScribe's AI pipeline
 and receive results in the exact format the EPJ expects.
@@ -119,7 +119,7 @@ async def transfer_note_to_epj(
     """
     Transfer a clinical note to the EPJ system.
 
-    Returns the EXACT SmartWebMessage format that WebMed's
+    Returns the EXACT SmartWebMessage format that the EPJ's
     SmartWebMessageHandler.cs parses. The EPJ will:
     1. Validate the FHIR DocumentReference
     2. Extract the note text from base64 content

@@ -9,7 +9,7 @@ These are SEPARATE from domain models. Why?
 3. API schemas have validation rules specific to HTTP (e.g., max file size)
 4. Domain models should never be coupled to API contracts
 
-When Aidn integrates, they code against THESE schemas.
+When the EPJ system integrates, it codes against THESE schemas.
 """
 
 from datetime import datetime

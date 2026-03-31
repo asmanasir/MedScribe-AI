@@ -9,7 +9,7 @@ Production healthcare systems need three pillars:
 3. LOGS — structured JSON logs with correlation IDs (structlog)
 
 This module configures all three. Compatible with:
-- Grafana LGTM stack (what Aidn uses: Loki, Grafana, Tempo, Mimir)
+- Grafana LGTM stack (Loki, Grafana, Tempo, Mimir)
 - Azure Monitor / Application Insights
 - Any OpenTelemetry-compatible backend
 """

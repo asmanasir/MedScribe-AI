@@ -1,7 +1,7 @@
 """
 Webhook integration — notify external systems when things happen.
 
-When a note is approved, Aidn needs to know. Instead of Aidn polling
+When a note is approved, the EPJ system needs to know. Instead of the EPJ polling
 your /status endpoint, you push a webhook to their callback URL.
 
 Security:

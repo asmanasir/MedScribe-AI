@@ -3,7 +3,7 @@ from __future__ import annotations
 """
 GDPR Data Lifecycle — the most critical module in the system.
 
-Vidd's approach (and ours):
+Our approach:
 - MedScribe is a TRANSIT system, not a STORAGE system
 - Patient data exists temporarily for processing only
 - Once the note is approved and transferred to EPJ, ALL patient data is deleted
