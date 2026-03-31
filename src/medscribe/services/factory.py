@@ -14,13 +14,13 @@ Pattern: Factory + Dependency Injection
 
 from functools import lru_cache
 
-from medscribe.config import LLMBackend, STTBackend, Settings, get_settings
-from medscribe.services.base import LLMProvider, STTProvider, StructuringService
+from medscribe.config import LLMBackend, Settings, STTBackend, get_settings
+from medscribe.services.base import LLMProvider, StructuringService, STTProvider
 from medscribe.services.llm_ollama import OllamaLLMProvider
 from medscribe.services.llm_openai import OpenAILLMProvider
+from medscribe.services.structuring import LLMStructuringService
 from medscribe.services.stt_local import LocalWhisperSTTProvider
 from medscribe.services.stt_whisper import WhisperSTTProvider
-from medscribe.services.structuring import LLMStructuringService
 
 
 @lru_cache

@@ -59,7 +59,7 @@ class Transcript(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     visit_id: UUID
     raw_text: str
-    segments: list["TranscriptSegment"] = Field(default_factory=list)
+    segments: list[TranscriptSegment] = Field(default_factory=list)
     language: str = "no"  # Norwegian default
     model_id: str = ""  # Which STT model produced this
     confidence: float = 0.0  # Overall confidence score

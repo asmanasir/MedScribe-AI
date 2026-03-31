@@ -181,7 +181,6 @@ async def ask_patient_context(
 
     Example: "Hvilke medisiner bruker pasienten?"
     """
-    from medscribe.api.dependencies import get_db_session
     from medscribe.agents.rag import PatientRAG
 
     # Get a real session

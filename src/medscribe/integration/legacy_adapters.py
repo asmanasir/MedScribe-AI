@@ -20,9 +20,7 @@ Supported formats:
 4. EPJ-Løft XML — for municipal healthcare systems
 """
 
-import json
 from datetime import datetime, timezone
-from uuid import UUID
 from xml.etree import ElementTree as ET
 
 from medscribe.domain.models import ClinicalNote, Visit

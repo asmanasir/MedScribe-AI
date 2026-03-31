@@ -14,7 +14,7 @@ Flow:
   EPJ closes patient   → POST /epj/session/{id}/close
 """
 
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import structlog
 from fastapi import APIRouter, Depends, HTTPException

@@ -24,9 +24,10 @@ The orchestrator is REACTIVE — it suggests actions based on the note content.
 It does NOT make clinical decisions. The human decides.
 """
 
-import structlog
 from datetime import datetime, timezone
 from uuid import UUID
+
+import structlog
 
 from medscribe.agents.base import (
     ActionRisk,

@@ -17,13 +17,10 @@ Why a CLI?
 """
 
 import argparse
-import asyncio
 import json
 import sys
-from uuid import UUID
 
 import httpx
-
 
 DEFAULT_BASE_URL = "http://localhost:8000"
 

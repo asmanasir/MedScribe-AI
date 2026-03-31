@@ -24,7 +24,6 @@ for semantic search. For now, we use simple keyword + date-based retrieval.
 """
 
 import json
-from uuid import UUID
 
 import structlog
 from sqlalchemy import select

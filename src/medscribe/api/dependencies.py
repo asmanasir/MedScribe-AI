@@ -19,11 +19,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from medscribe.config import Settings, get_settings
 from medscribe.safety.guardrails import SafetyGuardrails
-from medscribe.services.base import LLMProvider, STTProvider, StructuringService
+from medscribe.services.base import StructuringService, STTProvider
 from medscribe.services.factory import (
-    get_llm_provider,
-    get_stt_provider,
     get_structuring_service,
+    get_stt_provider,
 )
 from medscribe.storage.database import get_session_factory
 from medscribe.storage.repositories import (

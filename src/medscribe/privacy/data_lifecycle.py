@@ -29,19 +29,19 @@ What gets deleted:
 - Visit metadata with patient identifiers
 """
 
-import structlog
 from datetime import datetime, timezone
 from uuid import UUID
 
+import structlog
 from sqlalchemy import delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from medscribe.storage.database import (
+    AuditEntryRow,
     ClinicalNoteRow,
     SafetyFlagRow,
     TranscriptRow,
     VisitRow,
-    AuditEntryRow,
 )
 
 logger = structlog.get_logger()
@@ -139,8 +139,9 @@ class DataLifecycleManager:
 
         This should run as a scheduled task (cron job).
         """
-        from sqlalchemy import select
         from datetime import timedelta
+
+        from sqlalchemy import select
 
         cutoff = datetime.now(timezone.utc) - timedelta(hours=max_age_hours)
 

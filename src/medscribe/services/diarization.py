@@ -28,10 +28,8 @@ Two modes:
 """
 
 import asyncio
-import io
 import os
 import tempfile
-import wave
 from dataclasses import dataclass
 
 import structlog

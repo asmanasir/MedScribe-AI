@@ -16,7 +16,6 @@ sends webhooks when they fire.
 import hashlib
 import hmac
 import json
-from datetime import datetime, timezone
 
 import httpx
 import structlog

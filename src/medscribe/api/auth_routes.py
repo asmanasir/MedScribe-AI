@@ -10,8 +10,8 @@ For now, we have a simple API-key based token endpoint
 that's suitable for dev/testing and service-to-service auth.
 """
 
-from pydantic import BaseModel, Field
 from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel, Field
 
 from medscribe.api.auth import create_access_token
 from medscribe.config import Settings, get_settings

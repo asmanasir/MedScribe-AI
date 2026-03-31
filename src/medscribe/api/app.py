@@ -23,8 +23,8 @@ from medscribe.api.agent_routes import router as agent_router
 from medscribe.api.auth_routes import router as auth_router
 from medscribe.api.epj_routes import router as epj_router
 from medscribe.api.routes import router
-from medscribe.api.ws import router as ws_router
 from medscribe.api.schemas import HealthResponse
+from medscribe.api.ws import router as ws_router
 from medscribe.config import get_settings
 from medscribe.services.factory import get_llm_provider, get_stt_provider
 from medscribe.storage.database import init_db

@@ -232,7 +232,7 @@ def _flatten_value(value: object) -> str:
     if isinstance(value, dict):
         # Extract all string values from nested dict, skip keys
         parts = []
-        for k, v in value.items():
+        for _k, v in value.items():
             flat = _flatten_value(v)
             if flat and flat != "Not documented.":
                 parts.append(flat)

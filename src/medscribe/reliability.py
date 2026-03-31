@@ -17,7 +17,7 @@ These patterns are essential because:
 import asyncio
 import time
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from functools import wraps
 
@@ -144,7 +144,7 @@ class CircuitBreaker:
             result = await fn(*args, **kwargs)
             self._on_success()
             return result
-        except Exception as e:
+        except Exception:
             self._on_failure()
             raise
 

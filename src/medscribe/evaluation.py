@@ -18,7 +18,6 @@ Evaluation methods:
 - LLM-as-judge (use a second LLM to evaluate the first)
 """
 
-import json
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 

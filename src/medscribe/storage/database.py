@@ -17,10 +17,9 @@ This means:
 - You can swap SQLAlchemy for another ORM without touching the domain
 """
 
-import json
-from datetime import datetime, timezone
+from datetime import datetime
 
-from sqlalchemy import DateTime, String, Text, Float, Boolean
+from sqlalchemy import Boolean, DateTime, Float, String, Text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 

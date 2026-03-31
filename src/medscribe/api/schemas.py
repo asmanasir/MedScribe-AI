@@ -19,7 +19,6 @@ from pydantic import BaseModel, Field
 
 from medscribe.domain.enums import NoteSection, VisitStatus
 
-
 # --- Requests ---
 
 

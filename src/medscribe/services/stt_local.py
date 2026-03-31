@@ -16,7 +16,6 @@ Chunked processing:
 import asyncio
 import io
 import os
-import struct
 import tempfile
 import time
 import wave

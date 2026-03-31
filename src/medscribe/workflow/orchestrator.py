@@ -21,7 +21,7 @@ import structlog
 
 from medscribe.domain.enums import VisitStatus
 from medscribe.domain.models import AuditEntry, ClinicalNote, Transcript, Visit
-from medscribe.services.base import STTProvider, StructuringService
+from medscribe.services.base import StructuringService, STTProvider
 from medscribe.workflow.engine import WorkflowEngine
 
 logger = structlog.get_logger()

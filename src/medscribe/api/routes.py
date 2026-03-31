@@ -611,8 +611,9 @@ async def export_hl7(
     if not note:
         raise HTTPException(status_code=404, detail="No note found")
 
-    from medscribe.integration.legacy_adapters import HL7v2Adapter
     from fastapi.responses import PlainTextResponse
+
+    from medscribe.integration.legacy_adapters import HL7v2Adapter
     message = HL7v2Adapter.build_mdm_message(visit, note)
     return PlainTextResponse(content=message, media_type="application/hl7-v2")
 
@@ -632,8 +633,9 @@ async def export_kith_xml(
     if not note:
         raise HTTPException(status_code=404, detail="No note found")
 
-    from medscribe.integration.legacy_adapters import KITHXMLAdapter
     from fastapi.responses import Response
+
+    from medscribe.integration.legacy_adapters import KITHXMLAdapter
     xml = KITHXMLAdapter.build_consultation_note(visit, note)
     return Response(content=xml, media_type="application/xml")
 
@@ -653,8 +655,9 @@ async def export_plain_text(
     if not note:
         raise HTTPException(status_code=404, detail="No note found")
 
-    from medscribe.integration.legacy_adapters import PlainTextAdapter
     from fastapi.responses import PlainTextResponse
+
+    from medscribe.integration.legacy_adapters import PlainTextAdapter
     text = PlainTextAdapter.build_text_note(visit, note)
     return PlainTextResponse(content=text)
 

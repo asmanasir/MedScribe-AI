@@ -25,9 +25,7 @@ FHIR resource mapping:
 We use the `fhir.resources` library for validated FHIR R4 models.
 """
 
-import json
 from datetime import datetime, timezone
-from uuid import UUID
 
 import structlog
 
