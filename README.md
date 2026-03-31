@@ -1,6 +1,6 @@
 # MedScribe AI
 
-A healthcare AI platform I built to explore how clinical documentation systems like Aidn and Vidd Medical work under the hood. It combines speech-to-text, structured note generation, and agentic workflows into a single deployable service, with a focus on privacy-first local processing.
+A healthcare AI platform I built to explore how clinical documentation systems work in Norwegian healthcare. It combines speech-to-text, structured note generation, and agentic workflows into a single deployable service, with a focus on privacy-first local processing.
 
 The goal was to understand the full stack — from audio capture to EPJ integration — and build something that could realistically plug into Norwegian healthcare infrastructure.
 
@@ -15,7 +15,7 @@ Beyond basic documentation, the system includes agentic workflows — AI agents 
 ## Architecture overview
 
 ```
-External Systems (Aidn / DIPS / WebMed)
+External Systems (EPJ / EHR)
          │
          │ REST / WebSocket / FHIR
          ▼
@@ -60,7 +60,7 @@ External Systems (Aidn / DIPS / WebMed)
 
 **Privacy** — GDPR data lifecycle with auto-purge after EPJ transfer. Audio is never written to disk. 24-hour safety net deletes any lingering data.
 
-**Integration** — FHIR R4 (DocumentReference, Composition, Bundle), HL7 v2.x MDM messages, KITH XML, and an EPJ bridge that speaks the same protocol as Vidd's integration with WebMed/TNW.
+**Integration** — FHIR R4 (DocumentReference, Composition, Bundle), HL7 v2.x MDM messages, KITH XML, and an EPJ bridge compatible with standard Norwegian EPJ AI assistant protocols.
 
 **Reliability** — Retry with exponential backoff, fallback providers, circuit breaker pattern.
 
