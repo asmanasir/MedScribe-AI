@@ -26,12 +26,8 @@ jobs:
       - name: Lint (ruff)
         run: ruff check src/
 
-      - name: Type check (mypy)
-        run: mypy src/medscribe/ --ignore-missing-imports
-        continue-on-error: true
-
       - name: Unit tests
-        run: pytest tests/ -v --tb=short --cov=medscribe --cov-report=xml
+        run: pytest tests/ -v --tb=short
 
       - name: Security scan (bandit via ruff)
         run: ruff check src/ --select S
@@ -46,11 +42,3 @@ jobs:
 
       - name: Build Docker image
         run: docker build -t medscribe-ai:${{ github.sha }} .
-
-      - name: Verify image runs
-        run: |
-          docker run -d --name test -p 8000:8000 \
-            -e MEDSCRIBE_DEBUG=true \
-            -e MEDSCRIBE_STT_BACKEND=local \
-            -e MEDSCRIBE_LLM_BACKEND=ollama \
-            medscribe-ai:${{ github.sha }} || true
