@@ -83,10 +83,16 @@ Inspired by systems like [Aidn](https://aidn.no) and [Vidd Medical](https://vidd
 - **Event bus** — pub/sub for async integrations, Kafka-ready
 - **Webhooks** — HMAC-signed notifications
 
+### Safety & Human Oversight
+- **Human-in-the-loop** — all AI-generated notes require clinician approval before EPJ submission
+- **Draft-only output** — system never auto-finalizes clinical documents
+- **Uncertainty flagging** — uncertain sections highlighted with [VERIFY] tags for clinician review
+
 ### Production Readiness
 - **Reliability** — retry with exponential backoff, fallback providers, circuit breaker
-- **Observability** — structured JSON logging, metrics collection, correlation IDs
-- **AI quality evaluation** — completeness, source fidelity, consistency scoring, drift detection
+- **Observability** — structured JSON logging, OpenTelemetry tracing, Prometheus-compatible metrics, correlation IDs
+- **AI quality evaluation** — completeness, source fidelity, consistency scoring, drift detection. Includes regression tests on clinical note generation using golden datasets
+- **Performance** — designed for sub-2s structuring latency on local GPU (NVIDIA T4/A100). Chunked audio processing for recordings of any length
 - **CI/CD** — GitHub Actions (lint, type check, test, Docker build, security scan)
 - **Deployment** — Docker, Kubernetes (Azure AKS), on-premise, hybrid via Norsk Helsenett
 
@@ -95,13 +101,13 @@ Inspired by systems like [Aidn](https://aidn.no) and [Vidd Medical](https://vidd
 | Layer | Technology |
 |-------|-----------|
 | API | Python 3.10+, FastAPI, Pydantic v2 |
-| AI / ML | Python (faster-whisper, Ollama, OpenAI SDK) |
+| AI / ML | Python (faster-whisper, Ollama). Optional cloud provider support disabled by default in clinical deployments |
 | Database | PostgreSQL (prod) / SQLite (dev), SQLAlchemy 2.0 async |
 | Frontend | React 19, TypeScript, Vite, Tailwind CSS v4 |
 | Auth | JWT (HS256), RBAC |
 | Cloud | Azure Norway East (AKS, Key Vault, PostgreSQL) |
 | CI/CD | GitHub Actions, Docker |
-| Observability | structlog (JSON), metrics collector |
+| Observability | structlog (JSON), OpenTelemetry-ready, Prometheus metrics, Grafana-compatible |
 
 ## API Endpoints (35+)
 
