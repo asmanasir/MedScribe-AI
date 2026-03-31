@@ -23,6 +23,7 @@ class Environment(str, Enum):
     DEV = "dev"
     STAGING = "staging"
     PRODUCTION = "production"
+    DEMO = "demo"
 
 
 class LLMBackend(str, Enum):
