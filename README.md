@@ -1,181 +1,139 @@
 # MedScribe AI
 
-> Modular, production-oriented healthcare AI platform combining speech-to-text, RAG-based LLM processing, and agentic workflows, with 35+ API endpoints and privacy-first local deployment support.
+A healthcare AI platform I built to explore how clinical documentation systems like Aidn and Vidd Medical work under the hood. It combines speech-to-text, structured note generation, and agentic workflows into a single deployable service, with a focus on privacy-first local processing.
 
-Inspired by systems like [Aidn](https://aidn.no) and [Vidd Medical](https://viddmedical.com), this project explores combining clinical documentation, multi-step workflows, and agent-based automation in a single architecture.
+The goal was to understand the full stack — from audio capture to EPJ integration — and build something that could realistically plug into Norwegian healthcare infrastructure.
 
----
+## What it does
 
-## Architecture
+A doctor records a consultation. The system transcribes the audio locally (Whisper), structures it into a clinical note using a local LLM (Ollama/Llama), and presents it for review. Nothing leaves the machine.
+
+After approval, the note can be exported as FHIR R4, HL7v2, or KITH XML — whatever the target EPJ system speaks. Patient data is purged automatically after transfer.
+
+Beyond basic documentation, the system includes agentic workflows — AI agents that can draft referral letters, suggest diagnosis codes, create follow-up tasks, and update care plans. Each action requires clinician approval before execution.
+
+## Architecture overview
 
 ```
-                    ┌──────────────────────────┐
-                    │   External Systems       │
-                    │   (Aidn / EPJ / WebMed)  │
-                    └────────────┬─────────────┘
-                                 │ REST / WebSocket / FHIR
-                                 ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                        API Gateway                               │
-│   JWT Auth  ·  RBAC  ·  Rate Limiting  ·  TLS 1.3               │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│   ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────┐   │
-│   │   STT    │  │   LLM    │  │ Structur │  │   Agentic    │   │
-│   │ Service  │  │ Service  │  │  -ing    │  │   Workflow   │   │
-│   │          │  │          │  │          │  │   Engine     │   │
-│   │ Whisper  │  │ Ollama   │  │ Templates│  │              │   │
-│   │ (local)  │  │ (local)  │  │ 5 specs  │  │ 5 agents     │   │
-│   └──────────┘  └──────────┘  └──────────┘  │ RAG Q&A      │   │
-│                                              └──────────────┘   │
-│                                                                  │
-│   ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────┐   │
-│   │ Workflow  │  │ Safety   │  │ Privacy  │  │ Observability│   │
-│   │ Engine   │  │ Guard-   │  │ GDPR     │  │              │   │
-│   │          │  │ rails    │  │ Lifecycle│  │ Metrics      │   │
-│   │ FSM      │  │          │  │          │  │ Tracing      │   │
-│   │ 8 states │  │ Halluci- │  │ Auto-    │  │ Logging      │   │
-│   │ Audit    │  │ nation   │  │ purge    │  │              │   │
-│   └──────────┘  └──────────┘  └──────────┘  └──────────────┘   │
-│                                                                  │
-│   ┌──────────────────────────────────────────────────────────┐  │
-│   │                  Integration Layer                        │  │
-│   │  FHIR R4  ·  HL7v2  ·  KITH XML  ·  EPJ Bridge  ·  Events │
-│   └──────────────────────────────────────────────────────────┘  │
-│                                                                  │
-│   ┌──────────────────────────────────────────────────────────┐  │
-│   │                  Reliability Layer                        │  │
-│   │  Retry + Backoff  ·  Fallback  ·  Circuit Breaker        │  │
-│   └──────────────────────────────────────────────────────────┘  │
-├─────────────────────────────────────────────────────────────────┤
-│   Storage: PostgreSQL (prod) / SQLite (dev)                      │
-│   Audit: Append-only log  ·  Model traceability                  │
-└─────────────────────────────────────────────────────────────────┘
+External Systems (Aidn / DIPS / WebMed)
+         │
+         │ REST / WebSocket / FHIR
+         ▼
+┌─────────────────────────────────────┐
+│  API Gateway (FastAPI + JWT + RBAC) │
+├─────────────────────────────────────┤
+│  STT        LLM       Structuring  │
+│  (Whisper)  (Ollama)  (Templates)  │
+│                                     │
+│  Workflow Engine    Safety Layer    │
+│  (8-state FSM)     (Guardrails)    │
+│                                     │
+│  Agents      Privacy    Metrics    │
+│  (5 types)   (GDPR)    (Logging)  │
+├─────────────────────────────────────┤
+│  Integration: FHIR · HL7 · KITH   │
+│  Reliability: Retry · Fallback     │
+├─────────────────────────────────────┤
+│  PostgreSQL / SQLite + Audit Log   │
+└─────────────────────────────────────┘
 ```
 
-## Key Capabilities
+## Key design decisions
 
-### Clinical Documentation
-- **Speech-to-text** — local Whisper (faster-whisper), chunked processing for long recordings
-- **Real-time streaming** — WebSocket endpoint, text appears as doctor speaks
-- **Structured notes** — AI converts transcript into clinical sections (SOAP-based)
-- **5 specialty templates** — General Practice, Psychiatry, Surgery, Emergency, Pediatrics
-- **Norwegian medical language** — domain-specific system prompts, ICD-10 hints, STT corrections
+**Why local-first?** Norwegian healthcare requires patient data to stay within the institution. All AI processing (STT + LLM) runs on the hospital's own infrastructure. No external API calls by default.
 
-### Agentic Workflows
-- **5 clinical agents** — Diagnosis coding, Follow-up tasks, Referral drafting, Care plan updates, Letter drafting
-- **Preview before execution** — every agent action shown to clinician before running
-- **Risk-based approval** — LOW (auto), MEDIUM (preview), HIGH (require explicit approval)
-- **RAG patient Q&A** — ask questions about patient history with source citations
+**Why stateless?** MedScribe is a processing service, not a data store. It receives audio, processes it, returns structured output, and purges everything. The EPJ system is the source of truth.
 
-### Privacy & Compliance
-- **Local-first** — STT and LLM run on-device by default, no cloud dependency
-- **GDPR data lifecycle** — auto-purge patient data after EPJ transfer (24h safety net)
-- **Audio never stored** — processed in memory only, temp files deleted immediately
-- **Audit trail** — every action logged with actor, timestamp, model ID
-- **CE/MDR framework** — device description, risk management, software lifecycle documentation
+**Why agentic?** Clinical documentation is more than transcription. After a consultation, the doctor may need to write a referral, update a care plan, order follow-up tests. The agent system proposes these actions with previews — the doctor decides what to execute.
 
-### Integration
-- **FHIR R4** — DocumentReference, Composition, Bundle export
-- **HL7 v2.x** — MDM messages for legacy hospital systems
-- **KITH XML** — Norwegian standard for older EPJ systems
-- **EPJ Bridge** — drop-in compatible with WebMed/TNW AI assistant protocol (same format as Vidd)
-- **Event bus** — pub/sub for async integrations, Kafka-ready
-- **Webhooks** — HMAC-signed notifications
+**Why multiple export formats?** Norwegian healthcare runs on a mix of modern (FHIR R4) and legacy (HL7v2, KITH XML) systems. The integration layer handles the translation so the AI pipeline doesn't need to care about the target system.
 
-### Safety & Human Oversight
-- **Human-in-the-loop** — all AI-generated notes require clinician approval before EPJ submission
-- **Draft-only output** — system never auto-finalizes clinical documents
-- **Uncertainty flagging** — uncertain sections highlighted with [VERIFY] tags for clinician review
+## What I built
 
-### Production Readiness
-- **Reliability** — retry with exponential backoff, fallback providers, circuit breaker
-- **Observability** — structured JSON logging, OpenTelemetry tracing, Prometheus-compatible metrics, correlation IDs
-- **AI quality evaluation** — completeness, source fidelity, consistency scoring, drift detection. Includes regression tests on clinical note generation using golden datasets
-- **Performance** — designed for sub-2s structuring latency on local GPU (NVIDIA T4/A100). Chunked audio processing for recordings of any length
-- **CI/CD** — GitHub Actions (lint, type check, test, Docker build, security scan)
-- **Deployment** — Docker, Kubernetes (Azure AKS), on-premise, hybrid via Norsk Helsenett
+**Clinical pipeline** — Speech-to-text (faster-whisper, chunked for long recordings), structured note generation with 5 specialty templates (GP, Psychiatry, Surgery, Emergency, Pediatrics), Norwegian medical terminology corrections, and WebSocket streaming for real-time transcription.
 
-## Tech Stack
+**Agentic AI** — Five clinical agents: diagnosis coding (ICD-10), referral letter drafting, follow-up task creation, care plan updates, and patient letter generation. Each agent generates a preview that the clinician reviews before execution. Risk-based approval (low/medium/high).
 
-| Layer | Technology |
-|-------|-----------|
-| API | Python 3.10+, FastAPI, Pydantic v2 |
-| AI / ML | Python (faster-whisper, Ollama). Optional cloud provider support disabled by default in clinical deployments |
-| Database | PostgreSQL (prod) / SQLite (dev), SQLAlchemy 2.0 async |
-| Frontend | React 19, TypeScript, Vite, Tailwind CSS v4 |
-| Auth | JWT (HS256), RBAC |
-| Cloud | Azure Norway East (AKS, Key Vault, PostgreSQL) |
-| CI/CD | GitHub Actions, Docker |
-| Observability | structlog (JSON), OpenTelemetry-ready, Prometheus metrics, Grafana-compatible |
+**RAG patient Q&A** — Ask questions about a patient's history. The system retrieves relevant visit notes and answers with source citations. Runs locally.
 
-## API Endpoints (35+)
+**Safety** — Hallucination detection (phone numbers, emails, [VERIFY] tags), confidence scoring, empty note detection. Human-in-the-loop is enforced programmatically — notes cannot be auto-finalized.
 
-| Category | Endpoints |
-|----------|-----------|
-| Auth | `POST /auth/token` |
-| Visits | `POST /visits`, `GET /visits/{id}`, `GET /visits/{id}/status` |
-| Pipeline | `POST /visits/{id}/transcribe`, `POST /visits/{id}/structure`, `POST /visits/{id}/process` |
-| Review | `PUT /visits/{id}/note`, `POST /visits/{id}/approve` |
-| Audit | `GET /visits/{id}/audit`, `GET /visits/{id}/safety-flags` |
-| FHIR | `GET /visits/{id}/fhir/bundle`, `GET /visits/{id}/fhir/composition`, `GET /visits/{id}/fhir/document-reference` |
-| Legacy | `GET /visits/{id}/export/hl7`, `GET /visits/{id}/export/xml`, `GET /visits/{id}/export/text` |
-| EPJ Transfer | `POST /visits/{id}/transfer-to-epj` |
-| Privacy | `POST /visits/{id}/purge`, `POST /privacy/purge-expired`, `GET /privacy/audit-check` |
-| Agents | `POST /agent/plan`, `GET /agent/plan/{id}`, approve/skip/execute actions |
-| RAG | `POST /agent/ask` |
-| EPJ Bridge | `POST /epj/session/start`, status updates, note transfer, close |
-| Templates | `GET /templates`, `GET /templates/{id}` |
-| Streaming | `WebSocket /ws/transcribe` |
-| Health | `GET /health` |
+**Privacy** — GDPR data lifecycle with auto-purge after EPJ transfer. Audio is never written to disk. 24-hour safety net deletes any lingering data.
 
-## Quick Start
+**Integration** — FHIR R4 (DocumentReference, Composition, Bundle), HL7 v2.x MDM messages, KITH XML, and an EPJ bridge that speaks the same protocol as Vidd's integration with WebMed/TNW.
+
+**Reliability** — Retry with exponential backoff, fallback providers, circuit breaker pattern.
+
+**Evaluation** — AI quality scoring (completeness, source fidelity, consistency), drift detection, regression testing against golden datasets.
+
+## Tech stack
+
+- **Backend:** Python 3.10, FastAPI, Pydantic v2, SQLAlchemy 2.0 (async)
+- **AI:** faster-whisper (local STT), Ollama (local LLM). Optional cloud provider support, disabled by default in clinical deployments
+- **Frontend:** React 19, TypeScript, Vite, Tailwind CSS
+- **Database:** PostgreSQL (production), SQLite (development)
+- **Auth:** JWT with role-based access control
+- **Observability:** structlog (structured JSON), OpenTelemetry-ready, Prometheus-compatible metrics
+- **Deployment:** Docker, Kubernetes (Azure Norway East), on-premise support
+- **CI/CD:** GitHub Actions (lint, type check, tests, Docker build, security scan)
+
+## Running locally
 
 ```bash
-# Clone and install
-git clone <repo>
-cd MedScribe-AI
-python -m venv .venv && source .venv/bin/activate  # or .venv\Scripts\activate on Windows
+# Setup
+python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev,local]"
+cp .env.example .env
 
-# Configure
-cp .env.example .env  # Edit with your settings
+# Start Ollama
+ollama pull llama3.2:3b
 
-# Start Ollama (local LLM)
-ollama pull llama3.2:1b
+# Backend
+python -m medscribe
 
-# Run
-python -m medscribe            # Backend: http://localhost:8000
-cd frontend && npm install && npm run dev  # Frontend: http://localhost:3000
+# Frontend (separate terminal)
+cd frontend && npm install && npm run dev
 ```
 
-## Testing
+Backend runs on `http://localhost:8000`, frontend on `http://localhost:3000`.
+
+## Tests
 
 ```bash
-pytest tests/ -v               # 38 unit tests
-pytest tests/ --cov=medscribe  # With coverage
-ruff check src/                # Lint + security
+pytest tests/ -v          # 38 tests
+ruff check src/           # Lint + security scan
 ```
 
-## Project Structure
+## API surface
+
+35+ endpoints organized into: authentication, visit pipeline (transcribe/structure/approve), FHIR export, legacy export (HL7/XML/text), EPJ bridge, agentic workflows, RAG Q&A, privacy controls, templates, health checks, and WebSocket streaming.
+
+Full endpoint list available at `http://localhost:8000/docs` (Swagger UI).
+
+## Project structure
 
 ```
 src/medscribe/
-├── domain/          # Pure business objects (Visit, Note, Transcript)
-├── services/        # AI processing (STT, LLM, structuring, Norwegian NLP)
-├── agents/          # Agentic workflows (5 clinical agents + RAG)
-├── workflow/        # State machine + orchestration
-├── safety/          # Guardrails, hallucination detection
-├── privacy/         # GDPR data lifecycle, auto-purge
-├── storage/         # Database repositories, audit logging
-├── api/             # FastAPI routes, auth, WebSocket, EPJ bridge
-├── integration/     # FHIR, HL7, KITH XML, events, webhooks, EPJ bridge
-├── observability.py # Metrics, tracing, structured logging
-├── reliability.py   # Retry, fallback, circuit breaker
-├── evaluation.py    # AI quality scoring, drift detection
-└── config.py        # Centralized settings
+├── domain/        # Business objects (Visit, Note, Transcript, Templates)
+├── services/      # AI processing (STT, LLM, structuring, Norwegian NLP)
+├── agents/        # Agentic workflows + RAG
+├── workflow/      # State machine + orchestration
+├── safety/        # Guardrails, hallucination detection
+├── privacy/       # GDPR lifecycle, auto-purge
+├── storage/       # Repositories, audit logging
+├── api/           # Routes, auth, WebSocket, EPJ bridge
+├── integration/   # FHIR, HL7, KITH, events, webhooks
+└── *.py           # Observability, reliability, evaluation, config
 ```
 
-## License
+## Compliance
 
-Proprietary. All rights reserved.
+The `compliance/` directory contains CE/MDR documentation framework: device description, intended purpose, risk management (ISO 14971), and software lifecycle (IEC 62304).
+
+## Performance
+
+Designed for sub-2s structuring latency on GPU hardware (NVIDIA T4/A100). On CPU, structuring takes 15-30s depending on transcript length. Audio processing uses chunked transcription to handle recordings of any length without memory issues.
+
+---
+
+Built by Asma Hafeez
