@@ -130,6 +130,16 @@ src/medscribe/
 
 The `compliance/` directory contains CE/MDR documentation framework: device description, intended purpose, risk management (ISO 14971), and software lifecycle (IEC 62304).
 
+## Deployment modes
+
+The system supports both on-premise deployment for strict data control and private cloud deployment in compliant regions. All AI processing stays within controlled environments.
+
+**On-premise (hospitals)** — GPU servers inside the hospital network. Patient data never leaves the institution. Docker/Kubernetes deployment with local Whisper + Ollama.
+
+**Private cloud (clinics)** — Azure Norway East with isolated VNet, Key Vault for encryption keys, and no public internet exposure. Suitable for smaller clinics that don't have their own GPU infrastructure.
+
+In both modes, no patient data is sent to external APIs. The AI models run within the deployment environment.
+
 ## Performance
 
 Designed for sub-2s structuring latency on GPU hardware (NVIDIA T4/A100). On CPU, structuring takes 15-30s depending on transcript length. Audio processing uses chunked transcription to handle recordings of any length without memory issues.
