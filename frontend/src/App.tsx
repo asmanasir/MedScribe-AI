@@ -54,7 +54,7 @@ export default function App() {
   // --- Init ---
   useEffect(() => {
     api.getHealth().then(setHealth).catch(() => null);
-    api.authenticate('DR001', 'dev-local-secret-change-in-prod');
+    api.authenticate('DR001', import.meta.env.VITE_API_SECRET || 'dev-secret');
     api.getTemplates().then(setTemplates).catch(() => {});
   }, []);
 

@@ -16,6 +16,7 @@ Make sure the server is running: python -m medscribe
 
 import io
 import json
+import os
 import sys
 import time
 import wave
@@ -26,7 +27,7 @@ import sounddevice as sd
 
 # --- Config ---
 API_URL = "http://localhost:8000"
-API_SECRET = "dev-local-secret-change-in-prod"
+API_SECRET = os.environ.get("MEDSCRIBE_SECRET_KEY", "dev-secret")
 SAMPLE_RATE = 16000  # 16kHz — what Whisper expects
 CHANNELS = 1         # Mono — clinical recordings don't need stereo
 
