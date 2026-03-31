@@ -1,0 +1,52 @@
+# Development docker-compose.
+# Run with: docker-compose up
+#
+# This sets up:
+# - MedScribe API server
+# - PostgreSQL database (production-like)
+# - Ollama for local LLM (optional)
+
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - MEDSCRIBE_ENVIRONMENT=dev
+      - MEDSCRIBE_DEBUG=true
+      - MEDSCRIBE_DATABASE_URL=postgresql+asyncpg://medscribe:medscribe@db:5432/medscribe
+      - MEDSCRIBE_LLM_BACKEND=openai
+      - MEDSCRIBE_OPENAI_API_KEY=${OPENAI_API_KEY}
+      - MEDSCRIBE_SECRET_KEY=${SECRET_KEY:-dev-secret-change-in-prod}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: medscribe
+      POSTGRES_PASSWORD: medscribe
+      POSTGRES_DB: medscribe
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U medscribe"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # Uncomment to use local LLM instead of OpenAI
+  # ollama:
+  #   image: ollama/ollama
+  #   ports:
+  #     - "11434:11434"
+  #   volumes:
+  #     - ollama_data:/root/.ollama
+
+volumes:
+  pgdata:
+  # ollama_data:

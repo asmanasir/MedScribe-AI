@@ -1,0 +1,63 @@
+# Ollama LLM Server — runs local models on GPU
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: medscribe-ollama
+  namespace: medscribe
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: medscribe-ollama
+  template:
+    metadata:
+      labels:
+        app: medscribe-ollama
+    spec:
+      containers:
+        - name: ollama
+          image: ollama/ollama:latest
+          ports:
+            - containerPort: 11434
+          resources:
+            requests:
+              cpu: "2000m"
+              memory: "8Gi"
+              nvidia.com/gpu: "1"  # Request 1 GPU
+            limits:
+              cpu: "4000m"
+              memory: "16Gi"
+              nvidia.com/gpu: "1"
+          volumeMounts:
+            - name: models
+              mountPath: /root/.ollama
+      volumes:
+        - name: models
+          persistentVolumeClaim:
+            claimName: ollama-models-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: medscribe-ollama
+  namespace: medscribe
+spec:
+  selector:
+    app: medscribe-ollama
+  ports:
+    - port: 11434
+      targetPort: 11434
+  type: ClusterIP
+---
+# Persistent storage for downloaded models
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ollama-models-pvc
+  namespace: medscribe
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi  # Enough for multiple models

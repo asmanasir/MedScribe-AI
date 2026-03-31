@@ -1,0 +1,58 @@
+[project]
+name = "medscribe-ai"
+version = "0.1.0"
+description = "Modular AI microservice platform for clinical documentation"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "pydantic>=2.9.0",
+    "pydantic-settings>=2.5.0",
+    "sqlalchemy[asyncio]>=2.0.35",
+    "aiosqlite>=0.20.0",       # Dev DB — swap for asyncpg in prod
+    "openai>=1.50.0",
+    "httpx>=0.27.0",
+    "structlog>=24.4.0",        # Structured logging (JSON)
+    "python-multipart>=0.0.12", # File uploads (audio)
+    "python-jose[cryptography]>=3.3.0",  # JWT auth
+    "passlib[bcrypt]>=1.7.4",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=5.0.0",
+    "ruff>=0.6.0",
+    "mypy>=1.11.0",
+    "httpx>=0.27.0",  # Test client
+]
+local = [
+    # Local LLM via Ollama
+    "ollama>=0.3.0",
+    # Local STT via faster-whisper (runs on CPU or GPU, no cloud)
+    "faster-whisper>=1.0.0",
+]
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "SIM", "S"]
+# S = bandit security checks — important for healthcare
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true

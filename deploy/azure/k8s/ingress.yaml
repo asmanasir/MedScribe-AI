@@ -1,0 +1,34 @@
+# HTTPS Ingress — TLS 1.3 termination (like Vidd)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: medscribe-ingress
+  namespace: medscribe
+  annotations:
+    # Force HTTPS
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # TLS 1.3 only (healthcare requirement)
+    nginx.ingress.kubernetes.io/ssl-protocols: "TLSv1.3"
+    # Rate limiting
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    # WebSocket support (for streaming transcription)
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - medscribe.hospital.no  # Replace with actual domain
+      secretName: medscribe-tls
+  rules:
+    - host: medscribe.hospital.no
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: medscribe-api
+                port:
+                  number: 8000
