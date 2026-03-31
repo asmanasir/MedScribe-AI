@@ -73,10 +73,11 @@ def create_app() -> FastAPI:
         redoc_url="/redoc",
     )
 
-    # CORS — restrict in production
+    # CORS — open for dev/demo, restrict in production via config
+    allow_all = settings.debug or is_demo
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"] if settings.debug else [],
+        allow_origins=["*"] if allow_all else [],
         allow_methods=["*"],
         allow_headers=["*"],
     )
