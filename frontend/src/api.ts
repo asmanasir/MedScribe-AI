@@ -2,7 +2,7 @@
  * MedScribe API client — typed, clean, single source of truth.
  */
 
-const BASE = '';  // Vite proxy handles /api → localhost:8000
+const BASE = import.meta.env.VITE_API_URL || '';  // Empty = same origin (dev proxy), or full URL for production
 
 let token: string | null = null;
 

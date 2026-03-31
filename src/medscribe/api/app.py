@@ -50,6 +50,15 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     settings = get_settings()
 
+    is_demo = settings.environment.value == "demo"
+    demo_notice = (
+        "\n\n---\n\n"
+        "**DEMO ENVIRONMENT** — This is a public demonstration instance. "
+        "No real patient data is processed. In production, this service runs "
+        "in a private network (on-premise or Azure VNet) with strict access control, "
+        "TLS 1.3 encryption, and no public internet exposure."
+    ) if is_demo else ""
+
     app = FastAPI(
         title=settings.app_name,
         version=settings.api_version,
@@ -57,6 +66,7 @@ def create_app() -> FastAPI:
             "Modular AI microservice platform for clinical documentation. "
             "Provides speech-to-text, LLM-powered structuring, and workflow "
             "orchestration with full audit trails."
+            + demo_notice
         ),
         lifespan=lifespan,
         docs_url="/docs",
