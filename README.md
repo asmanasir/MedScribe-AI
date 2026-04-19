@@ -123,8 +123,40 @@ src/medscribe/
 ├── storage/       # Repositories, audit logging
 ├── api/           # Routes, auth, WebSocket, EPJ bridge
 ├── integration/   # FHIR, HL7, KITH, events, webhooks
+├── verification/  # Enterprise verification module (isolated domain)
 └── *.py           # Observability, reliability, evaluation, config
 ```
+
+## Enterprise Verification Module
+
+A separate domain module built for identity and document verification — KYC/KYP (Know Your Patient / Know Your Provider) workflows for healthcare onboarding.
+
+```
+User submits docs → AI scores confidence → Admin reviews → Approved / Rejected
+                         (88% confidence)    (View file, decide)
+```
+
+**What it does:**
+- Users upload identity documents (passport, national ID, driver's license, certificates)
+- An AI pipeline automatically scores each document for authenticity and completeness (0–100% confidence, 70% threshold)
+- Admin reviews the AI suggestion alongside the actual document, then approves or rejects with a written reason
+- Rejected users can resubmit with new documents
+- Every action is logged in an append-only audit trail for GDPR accountability
+
+**Enterprise features built in:**
+- **4-state machine** — PENDING → IN_REVIEW → APPROVED / REJECTED, invalid transitions blocked with HTTP 409
+- **Optimistic locking** — `version` field increments on every state change; concurrent admin writes detected and rejected
+- **Background job tracking** — worker attribution, retry count, processing timestamps, last error
+- **AI vs human transparency** — UI shows AI suggestion alongside human decision; overrides are audited
+- **Document viewer** — admin can open uploaded files directly from the review screen (authenticated blob URL)
+- **GDPR-ready** — right-to-erasure path, data minimisation, append-only audit, configurable auto-purge
+
+**Module is fully isolated** — no imports from the clinical domain. Can be extracted into its own microservice with zero code changes.
+
+> Full technical documentation, architecture decisions, GDPR handling, scalability path, and V2 roadmap:
+> **[VERIFICATION_MODULE.md](VERIFICATION_MODULE.md)**
+
+---
 
 ## Compliance
 
