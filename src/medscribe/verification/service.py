@@ -12,6 +12,9 @@ No route or repository ever transitions status directly.
 They always go through this service.
 """
 
+import asyncio
+import secrets
+import socket
 from datetime import datetime, timezone
 from uuid import UUID
 
@@ -133,18 +136,16 @@ class VerificationService:
         Simulate async document processing: OCR extraction + AI confidence scoring.
         Production: this runs in a Celery worker identified by worker_id.
         """
-        import asyncio, random, socket
         job.status = JobStatus.PROCESSING
         job.worker_id = f"worker-{socket.gethostname()}"
         job.started_at = datetime.now(timezone.utc)
         await self._jobs.save(job)
 
         try:
-            # Simulate processing time (remove in production — real OCR goes here)
             await asyncio.sleep(0)
 
             # Simulate AI confidence score (replace with real OCR/ML model output)
-            ai_confidence = round(random.uniform(0.72, 0.97), 2)
+            ai_confidence = round(0.72 + secrets.randbelow(26) / 100, 2)
             doc.ai_confidence = ai_confidence
             doc.extracted_data = {
                 "ai_model": "doc-classifier-v1",

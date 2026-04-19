@@ -9,8 +9,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from medscribe.api.auth import AuthenticatedUser, get_current_user, require_role
 from medscribe.api.dependencies import get_db_session
+from medscribe.verification import storage
 from medscribe.verification.enums import DocumentType, JobStatus, JobType, VerificationStatus
 from medscribe.verification.models import Verification, VerificationAuditEntry, VerificationDocument, VerificationJob
+from medscribe.verification.repository import VerificationDocumentRepository, VerificationRepository
 from medscribe.verification.service import VerificationService
 
 router = APIRouter(prefix="/api/v1/verification", tags=["Verification"])
@@ -175,7 +177,6 @@ async def list_my_verifications(
     session: AsyncSession = Depends(get_db_session),
 ):
     """List all verification cases for the authenticated user."""
-    from medscribe.verification.repository import VerificationRepository
     repo = VerificationRepository(session)
     verifications = await repo.list_by_user(user.user_id)
     return [VerificationResponse.from_model(v) for v in verifications]
@@ -206,8 +207,6 @@ async def download_document(
     session: AsyncSession = Depends(get_db_session),
 ):
     """Download a verification document (admin or owner)."""
-    from medscribe.verification.repository import VerificationDocumentRepository
-    from medscribe.verification import storage  # noqa: PLC0415
     doc_repo = VerificationDocumentRepository(session)
     docs = await doc_repo.list_by_verification(verification_id)
     doc = next((d for d in docs if d.id == document_id), None)
@@ -270,7 +269,6 @@ async def admin_list_all(
     session: AsyncSession = Depends(get_db_session),
 ):
     """Admin: list all verification cases, optionally filtered by status."""
-    from medscribe.verification.repository import VerificationRepository
     repo = VerificationRepository(session)
     verifications = await repo.list_all(status=status)
     return [VerificationResponse.from_model(v) for v in verifications]
