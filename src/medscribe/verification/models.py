@@ -6,7 +6,13 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
 
-from medscribe.verification.enums import DocumentType, JobStatus, JobType, VerificationAction, VerificationStatus
+from medscribe.verification.enums import (
+    DocumentType,
+    JobStatus,
+    JobType,
+    VerificationAction,
+    VerificationStatus,
+)
 
 
 class VerificationDocument(BaseModel):

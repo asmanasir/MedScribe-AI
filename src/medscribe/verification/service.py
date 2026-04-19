@@ -21,8 +21,20 @@ from uuid import UUID
 from fastapi import HTTPException, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from medscribe.verification.enums import DocumentType, JobStatus, JobType, VerificationAction, VerificationStatus
-from medscribe.verification.models import Verification, VerificationAuditEntry, VerificationDocument, VerificationJob
+from medscribe.verification import storage
+from medscribe.verification.enums import (
+    DocumentType,
+    JobStatus,
+    JobType,
+    VerificationAction,
+    VerificationStatus,
+)
+from medscribe.verification.models import (
+    Verification,
+    VerificationAuditEntry,
+    VerificationDocument,
+    VerificationJob,
+)
 from medscribe.verification.repository import (
     VerificationAuditRepository,
     VerificationDocumentRepository,
@@ -30,8 +42,6 @@ from medscribe.verification.repository import (
     VerificationRepository,
 )
 from medscribe.verification.security import read_and_validate_content, validate_upload
-from medscribe.verification import storage
-
 
 # Valid state transitions — same pattern as clinical workflow engine
 _TRANSITIONS: dict[VerificationStatus, set[VerificationStatus]] = {

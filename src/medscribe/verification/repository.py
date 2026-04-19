@@ -6,13 +6,24 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from medscribe.verification.enums import DocumentType, JobStatus, JobType, VerificationAction, VerificationStatus
-from medscribe.verification.models import Verification, VerificationAuditEntry, VerificationDocument, VerificationJob
 from medscribe.storage.database import (
     VerificationAuditRow,
     VerificationDocumentRow,
     VerificationJobRow,
     VerificationRow,
+)
+from medscribe.verification.enums import (
+    DocumentType,
+    JobStatus,
+    JobType,
+    VerificationAction,
+    VerificationStatus,
+)
+from medscribe.verification.models import (
+    Verification,
+    VerificationAuditEntry,
+    VerificationDocument,
+    VerificationJob,
 )
 
 

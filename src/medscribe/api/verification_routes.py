@@ -11,7 +11,12 @@ from medscribe.api.auth import AuthenticatedUser, get_current_user, require_role
 from medscribe.api.dependencies import get_db_session
 from medscribe.verification import storage
 from medscribe.verification.enums import DocumentType, JobStatus, JobType, VerificationStatus
-from medscribe.verification.models import Verification, VerificationAuditEntry, VerificationDocument, VerificationJob
+from medscribe.verification.models import (
+    Verification,
+    VerificationAuditEntry,
+    VerificationDocument,
+    VerificationJob,
+)
 from medscribe.verification.repository import VerificationDocumentRepository, VerificationRepository
 from medscribe.verification.service import VerificationService
 
@@ -44,7 +49,7 @@ class VerificationResponse(BaseModel):
     updated_at: str
 
     @classmethod
-    def from_model(cls, v: Verification) -> "VerificationResponse":
+    def from_model(cls, v: Verification) -> VerificationResponse:
         return cls(
             id=v.id,
             user_id=v.user_id,
@@ -73,7 +78,7 @@ class JobResponse(BaseModel):
     created_at: str
 
     @classmethod
-    def from_model(cls, j: VerificationJob) -> "JobResponse":
+    def from_model(cls, j: VerificationJob) -> JobResponse:
         return cls(
             id=j.id,
             job_type=j.job_type,
@@ -100,7 +105,7 @@ class DocumentResponse(BaseModel):
     uploaded_by: str
 
     @classmethod
-    def from_model(cls, d: VerificationDocument) -> "DocumentResponse":
+    def from_model(cls, d: VerificationDocument) -> DocumentResponse:
         return cls(
             id=d.id,
             verification_id=d.verification_id,
@@ -122,7 +127,7 @@ class AuditEntryResponse(BaseModel):
     timestamp: str
 
     @classmethod
-    def from_model(cls, e: VerificationAuditEntry) -> "AuditEntryResponse":
+    def from_model(cls, e: VerificationAuditEntry) -> AuditEntryResponse:
         return cls(
             id=e.id,
             action=e.action.value,
