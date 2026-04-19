@@ -143,6 +143,24 @@ User submits docs → AI scores confidence → Admin reviews → Approved / Reje
 - Rejected users can resubmit with new documents
 - Every action is logged in an append-only audit trail for GDPR accountability
 
+### Screenshots
+
+**Submit form** — user fills in name, email, selects document type and uploads a file:
+
+![Submit verification](docs/submit.png)
+
+**Pending case detail** — after upload, AI scores the document in the background. The detail view shows the document, AI confidence bar, job tracking panel, and current status:
+
+![Detail view — pending](docs/detail_pending.png)
+
+**Rejected case** — admin has rejected with a written reason. The full audit trail is visible below the status card:
+
+![Detail view — rejected](docs/detail_rejected.png)
+
+**Admin list view** — admin sees all cases with status badges and can open each one to review the document and make a decision:
+
+![Admin list view](docs/list_admin.png)
+
 **Enterprise features built in:**
 - **4-state machine** — PENDING → IN_REVIEW → APPROVED / REJECTED, invalid transitions blocked with HTTP 409
 - **Optimistic locking** — `version` field increments on every state change; concurrent admin writes detected and rejected
