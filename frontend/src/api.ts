@@ -4,25 +4,52 @@
 
 const BASE = import.meta.env.VITE_API_URL || '';  // Empty = same origin (dev proxy), or full URL for production
 
-let token: string | null = null;
+// Token stored on window so Vite HMR module reloads don't clear it.
+// On a full page load, window is fresh so no stale tokens from previous backend sessions.
+declare global { interface Window { __msToken?: string; __msRole?: string } }
+
+function getToken(): string | undefined { return window.__msToken; }
+function setToken(t: string): void { window.__msToken = t; }
+
+function decodeJwtRole(token: string): string {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    return payload.role ?? 'clinician';
+  } catch { return 'clinician'; }
+}
 
 function headers(json = false): HeadersInit {
   const h: Record<string, string> = {};
-  if (token) h['Authorization'] = `Bearer ${token}`;
+  const t = getToken();
+  if (t) h['Authorization'] = `Bearer ${t}`;
   if (json) h['Content-Type'] = 'application/json';
   return h;
 }
 
+export function getAuthHeaders(json = false): Record<string, string> {
+  return headers(json) as Record<string, string>;
+}
+
+export function isAuthenticated(): boolean {
+  return !!getToken();
+}
+
+export function getUserRole(): string {
+  return window.__msRole ?? 'clinician';
+}
+
 // --- Auth ---
-export async function authenticate(clientId: string, secret: string): Promise<string> {
+export async function authenticate(clientId: string, secret: string, role = 'clinician'): Promise<string> {
   const resp = await fetch(`${BASE}/api/v1/auth/token`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ client_id: clientId, client_secret: secret, role: 'clinician' }),
+    body: JSON.stringify({ client_id: clientId, client_secret: secret, role }),
   });
+  if (!resp.ok) throw new Error('Authentication failed');
   const data = await resp.json();
-  token = data.access_token;
-  return token!;
+  setToken(data.access_token);
+  window.__msRole = decodeJwtRole(data.access_token);
+  return data.access_token;
 }
 
 // --- Health ---

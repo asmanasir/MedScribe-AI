@@ -24,6 +24,7 @@ from medscribe.api.auth_routes import router as auth_router
 from medscribe.api.epj_routes import router as epj_router
 from medscribe.api.routes import router
 from medscribe.api.schemas import HealthResponse
+from medscribe.api.verification_routes import router as verification_router
 from medscribe.api.ws import router as ws_router
 from medscribe.config import get_settings
 from medscribe.services.factory import get_llm_provider, get_stt_provider
@@ -83,11 +84,12 @@ def create_app() -> FastAPI:
     )
 
     # Register routes
-    app.include_router(auth_router)  # Auth (unprotected — generates tokens)
-    app.include_router(router)       # Main API (protected by JWT)
-    app.include_router(ws_router)    # WebSocket (streaming transcription)
-    app.include_router(agent_router) # Agentic AI workflows
-    app.include_router(epj_router)   # EPJ bridge
+    app.include_router(auth_router)          # Auth (unprotected — generates tokens)
+    app.include_router(router)               # Main API (protected by JWT)
+    app.include_router(ws_router)            # WebSocket (streaming transcription)
+    app.include_router(agent_router)         # Agentic AI workflows
+    app.include_router(epj_router)           # EPJ bridge
+    app.include_router(verification_router)  # Verification module (separate domain)
 
     # Lightweight liveness check — always responds, never loads models
     @app.get("/healthz")
@@ -120,3 +122,6 @@ def create_app() -> FastAPI:
         )
 
     return app
+
+
+app = create_app()

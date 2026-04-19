@@ -3,12 +3,16 @@ import {
   Mic, MicOff, Square, Play, RotateCcw, Check, X, Pencil, ShieldCheck, Clock,
   Activity, LockKeyhole, FileText, AlertTriangle, SendHorizontal, MessagesSquare,
   Wifi, UserRound, ClipboardList, ChevronRight, Eye, SkipForward, CircleDot,
-  Search, ListChecks,
+  Search, ListChecks, BadgeCheck,
 } from 'lucide-react';
 import { useRecorder } from './useRecorder';
 import * as api from './api';
+import VerificationUpload from './verification/VerificationUpload';
+import VerificationList from './verification/VerificationList';
+import VerificationDetail from './verification/VerificationDetail';
+import type { VerificationRecord } from './verification/types';
 
-type View = 'journal' | 'agents' | 'chat';
+type View = 'journal' | 'agents' | 'chat' | 'verification';
 type PipelineStep = 'idle' | 'recording' | 'transcribing' | 'structuring' | 'review' | 'approved';
 
 export default function App() {
@@ -35,6 +39,11 @@ export default function App() {
   const [selectedTemplate, setSelectedTemplate] = useState('general_practice');
   const [templateSections, setTemplateSections] = useState<{ key: string; label: string; label_no: string }[]>([]);
 
+  // Verification state
+  const [verificationSubView, setVerificationSubView] = useState<'list' | 'upload' | 'detail'>('list');
+  const [selectedVerificationId, setSelectedVerificationId] = useState<string | null>(null);
+  const [verificationRefreshKey, setVerificationRefreshKey] = useState(0);
+
   // Agent state
   const [agentPlan, setAgentPlan] = useState<api.AgentPlan | null>(null);
   const [agentLoading, setAgentLoading] = useState(false);
@@ -47,6 +56,10 @@ export default function App() {
   // Ambient mode
   const [ambientMode, setAmbientMode] = useState(false);
 
+  // Auth ready state — true once authenticate() resolves successfully
+  const [authReady, setAuthReady] = useState(false);
+  const [userRole, setUserRole] = useState<string>('clinician');
+
   const recorder = useRecorder();
   const wsRef = useRef<WebSocket | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -54,7 +67,9 @@ export default function App() {
   // --- Init ---
   useEffect(() => {
     api.getHealth().then(setHealth).catch(() => null);
-    api.authenticate('DR001', import.meta.env.VITE_API_SECRET || 'dev-secret');
+    api.authenticate('DR001', import.meta.env.VITE_API_SECRET || 'dev-secret', 'admin')
+      .then(() => { setAuthReady(true); setUserRole(api.getUserRole()); })
+      .catch(() => setAuthReady(false));
     api.getTemplates().then(setTemplates).catch(() => {});
   }, []);
 
@@ -335,6 +350,7 @@ export default function App() {
               { id: 'journal' as View, icon: FileText, label: 'Journal' },
               { id: 'agents' as View, icon: ClipboardList, label: 'AI-assistent' },
               { id: 'chat' as View, icon: MessagesSquare, label: 'Spør journal' },
+              { id: 'verification' as View, icon: BadgeCheck, label: 'Verification' },
             ]).map(tab => (
               <button key={tab.id} onClick={() => setView(tab.id)}
                 className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-medium border-b-2 transition-colors ${
@@ -578,6 +594,48 @@ export default function App() {
                   <p className="text-xs mt-1">Godkjenn notatet først, deretter klikk "AI-assistent"</p>
                   <p className="text-xs">for å få forslag til henvisning, oppfølging, diagnosekoder m.m.</p>
                 </div>
+              )}
+            </div>
+          )}
+
+          {/* === VERIFICATION VIEW === */}
+          {view === 'verification' && (
+            <div className="flex-1 overflow-y-auto p-4">
+              {/* Sub-nav */}
+              <div className="flex items-center gap-2 mb-4">
+                <button onClick={() => setVerificationSubView('list')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${verificationSubView === 'list' ? 'bg-blue-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
+                  All Verifications
+                </button>
+                <button onClick={() => setVerificationSubView('upload')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${verificationSubView === 'upload' ? 'bg-blue-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
+                  + New Submission
+                </button>
+              </div>
+
+              {verificationSubView === 'upload' && (
+                <VerificationUpload authReady={authReady} onSubmitted={(v) => {
+                  setVerificationRefreshKey(k => k + 1);
+                  setSelectedVerificationId(v.id);
+                  setVerificationSubView('detail');
+                }} />
+              )}
+
+              {verificationSubView === 'list' && (
+                <VerificationList
+                  isAdmin={userRole === 'admin'}
+                  refreshKey={verificationRefreshKey}
+                  onSelect={(id) => { setSelectedVerificationId(id); setVerificationSubView('detail'); }}
+                />
+              )}
+
+              {verificationSubView === 'detail' && selectedVerificationId && (
+                <VerificationDetail
+                  verificationId={selectedVerificationId}
+                  isAdmin={userRole === 'admin'}
+                  onBack={() => setVerificationSubView('list')}
+                  onUpdated={() => setVerificationRefreshKey(k => k + 1)}
+                />
               )}
             </div>
           )}
